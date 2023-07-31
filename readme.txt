@@ -1,13 +1,13 @@
-=== Яндекс Метрика ===
-Contributors: prodalet
+=== ProdaLet ===
+Contributors: kustyrt
 Tags: prodalet, pop-up, popup, pop up, widget, callback, online chat
-Requires at least: 3.0
-Tested up to: 5.2
-Stable tag: 0.9.1
+Requires at least: 3.9
+Tested up to: 5.4
+Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Плагин для виджетов ProdaLet для вашего сайта на WordPress.
+Плагин для сервиса виджетов повышения конверсии сайтов  ProdaLet для WordPress.
 
 == Description ==
 
@@ -21,3 +21,4 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 2. Загрузите папку с плагином в директорию `/wp-content/plugins/` на вашем сервере
 3. Активируйте плагин ProdaLet в разделе Плагины в панели администрирования WordPress
 4. Зайдите в раздел Настройки - ProdaLet для вставки кода вашего счётчика
+

@@ -1,72 +1,74 @@
 <?php
-/**
- * Plugin Name: Prodalet
- * Author: Prodalet
- * Version: 0.9.1
- * License: GPLv2
- * Text Domain: prodalet.ru
- * Domain Path: /languages
- */
+/*
+Plugin Name: ProdaLet
+Plugin URI: https://prodalet.ru/cms-wordpress/plugin-wt-yandex-metrika-for-cms-wordpress
+Description: Подключение сервиса повышения конверсии ProdaLet.ru
+Version: 1
+Author: ProdaLet
+Author URI: https://prodalet.ru
+*/
 
-class Prodalet_Plugin {
-	function __construct() {
-		add_action( 'init', array( $this, 'init' ) );
-		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
-		add_action( 'admin_init', array( $this, 'admin_init' ) );
-		add_action( 'wp_footer', array( $this, 'wp_footer' ) );
+require('admin_panel.php');
+
+class Prodalet
+{
+	var $admin;
+	var $options;
+	var $options_default = array(
+		'script' => '',
+		'position' => 'header',
+		'mode' => 'all',
+        'activate_admin_panel' => null
+    );
+
+	function __construct(){	
+		add_action('init',array( $this, 'initial' ) );
 	}
 
-	function init() {
-		$this->options = array_merge( array(
-			'counter-code' => '',
-		), (array) get_option( 'prodalet', array() ) );
+	public function initial(){
+		$this->options = array_merge(
+			$this->options_default, 
+			(array) get_option('prodalet', array()) 
+		);
 
-		load_plugin_textdomain( 'prodalet', false, basename( dirname( __FILE__ ) ) . '/languages' );
+		if (defined('ABSPATH') && is_admin()) $this->admin = new ProdaletAdmin();
+
+		// Проверяем режим работы плагина
+		if (is_user_logged_in() && current_user_can('administrator') && ($this->options['mode'] == 'admin_not_display'))
+			return;
+
+		// Выводим счетчик в панели администратора
+        if (defined('ABSPATH') &&
+            is_admin() &&
+            !empty($this->options['activate_admin_panel']) &&
+            $this->options['activate_admin_panel'] == 'on'){
+            add_action('admin_footer', array(&$this, 'action_admin_footer'));
+        }
+
+		// Определяем расположение кода счетчика
+		if ($this->options['position'] == 'header') add_action('wp_head', array($this, 'wp_head'), 4);
+		else add_action('wp_footer', array($this, 'action_wp_footer'), 99);
 	}
 
-	function admin_init() {
-		register_setting( 'prodalet', 'prodalet', array( $this, 'sanitize' ) );
-		add_settings_section( 'general', '', '', 'prodalet' );
-		add_settings_field( 'install-code', __( 'Install code', 'prodalet' ), array( $this, 'field_install_code' ), 'prodalet', 'general' );
+	public static function basename() {
+        return plugin_basename(__FILE__);
+    }
+
+    // Подготавливаем код для вывода в шапке
+    function wp_head() {
+		if (!empty( $this->options['script'])) echo $this->options['script'];
 	}
 
-	function sanitize( $input ) {
-		$output = array();
-
-		if ( isset( $input['install-codee'] ) )
-			$output['install-code'] = ( current_user_can( 'unfiltered_html' ) ) ? $input['install-code'] : wp_kses_post( $input['install-code'] );
-
-		return $output;
+    // Подготавливаем код для вывода в подвале
+    public function action_wp_footer() {
+		if (!empty( $this->options['script'])) echo $this->options['script'];
 	}
 
-	function field_counter_code() {
-		?>
-		<textarea name="prodalet[install-code]" class="code large-text" rows="10"><?php echo esc_textarea( $this->options['install-code'] ); ?></textarea>
-		<p class="description"><?php _e( 'If you do not have a install code, you can <a href="http://prodalet.ru/">request one</a>.', 'prodalet' ); ?>
-		<?php
-	}
+	// Подготавливаем код для вывода в панели администратора
+    public function action_admin_footer(){
+        if (!empty( $this->options['script'])) echo $this->options['script'];
+    }
 
-	function admin_menu() {
-		add_options_page( __( 'ProdaLet', 'prodalet' ), __( 'ProdaLet', 'prodalet' ), 'manage_options', 'prodalet', array( $this, 'render_options' ) );
-	}
-
-	function render_options() {
-		?>
-		<div class="wrap">
-	        <h2><?php _e( 'ProdaLet', 'prodalet' ); ?></h2>
-	        <p><?php _e( 'Please enter your ProdaLet install code in the field below and click Save Changes.', 'prodalet' ); ?>
-	        <form action="options.php" method="POST">
-	            <?php settings_fields( 'prodalet' ); ?>
-	            <?php do_settings_sections( 'prodalet' ); ?>
-	            <?php submit_button(); ?>
-	        </form>
-	    </div>
-		<?php
-	}
-
-	function wp_footer() {
-		if ( ! empty( $this->options['install-code'] ) )
-			echo $this->options['install-code'];
-	}
 }
-$GLOBALS['prodalet_plugin'] = new Prodalet_Plugin;
+
+$prodalet = new Prodalet();
