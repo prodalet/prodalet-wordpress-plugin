@@ -1,14 +1,14 @@
 <?php
 
-class Prodalet
+class ProdaletAdmin
 {
 	var $script_mode_array = array(
 		'admin_not_display' => 'Отключать во время авторизации администратора сайта'
 		);
 
 	var $script_position_array = array(
-		'header' => 'Подключается в начале странице',
-		'footer' => 'Подключается в конце страницы'
+		'footer' => 'Подключается в конце страницы',
+        'header' => 'Подключается в начале странице',
 		);
 
 	function __construct()
@@ -18,7 +18,7 @@ class Prodalet
 	    add_action('admin_menu', array(&$this, 'admin_menu'));
 
 	    //Добавляем в описание плагина ссылку на справку.
-	    add_filter('plugin_row_meta', 'Prodalet::plugin_row_meta', 10, 2);
+	    add_filter('plugin_row_meta', 'ProdaletAdmin::plugin_row_meta', 10, 2);
 
 	    add_action('admin_init', array(&$this, 'plugin_settings'));
 	}
@@ -69,7 +69,11 @@ class Prodalet
 	 * Регистрируем настройки.
 	 * Настройки будут храниться в массиве, а не одна настройка = одна опция.
 	 */
-	function plugin_settings(){
+	function plugin_settings()
+    {
+
+        $domain = parse_url(site_url())['host'];
+
 		
 		// параметры: $option_group, $option_name, $sanitize_callback
 		register_setting( 'prodalet_group', 'prodalet', array(&$this, 'sanitize_callback') );
@@ -77,22 +81,57 @@ class Prodalet
 		// параметры: $id, $title, $callback, $page
 		add_settings_section( 'prodalet', '', array(&$this, 'display_setting_info') , 'prodalet_page' );
 
-		$field_params = array(
+		/*$field_params = array(
 			'type'      => 'textarea', 
 			'id'        => 'script',
 			'label_for' => 'script' 
 		);
 		add_settings_field( 'script', 'Код установки ProdaLet', array(&$this, 'display_settings'), 'prodalet_page', 'prodalet', $field_params );
+		*/
+
+        $field_params = array(
+            'type'      => 'text',
+            'id'        => 'script_api_key',
+            'label_for' => 'script_api_key'
+        );
+        add_settings_field( 'script_api_key', 'API KEY ProdaLet', array(&$this, 'display_settings'), 'prodalet_page', 'prodalet', $field_params );
+
+        $field_params = array(
+            'type'      => 'text',
+            'id'        => 'script_api_secret',
+            'label_for' => 'script_api_secret'
+        );
+        add_settings_field( 'script_api_secret', 'API SECRET ProdaLet', array(&$this, 'display_settings'), 'prodalet_page', 'prodalet', $field_params );
+
 	 
 	 	$field_params = array(
 			'type'      => 'select', 
 			'id'        => 'position',
 			'label_for' => 'position' ,
 			'desc'      => 'Выберите место расположения сервиса. Если установить наш код в начале странице - то виджеты будут показывать быстрее.', // описание
-			'vals' => $this->script_position_array
+			'vals' => $this->script_position_array,
+            'defautl' => 'footer',
 			);
 		add_settings_field( 'position', 'Подключение кода установки', array(&$this, 'display_settings'), 'prodalet_page', 'prodalet', $field_params );
-	 	 
+
+        $field_params = array(
+            'type'      => 'text',
+            'id'        => 'lazy_load_desctop',
+            'desc'      => 'Через сколько секунд после загрузки сайта будет подгружаться сервис Prodalet на компьютерах. 0 - сразу после загрузки. ', // описание
+            'label_for' => 'lazy_load_desctop',
+            'default' => 0,
+        );
+        add_settings_field( 'lazy_load_desctop', 'Отложенная загрузка для КОМПЬЮТЕРОВ, секунд ', array(&$this, 'display_settings'), 'prodalet_page', 'prodalet', $field_params );
+
+        $field_params = array(
+            'type'      => 'text',
+            'id'        => 'lazy_load_mobile',
+            'desc'      => 'Через сколько секунд после загрузки сайта на мобильных телефонах будет подгружаться сервис Prodalet . 0 - сразу после загрузки. ', // описание
+            'label_for' => 'lazy_load_mobile',
+            'default' => 0,
+        );
+        add_settings_field( 'lazy_load_mobile', 'Отложенная загрузка для МОБИЛЬНЫХ, секунд ', array(&$this, 'display_settings'), 'prodalet_page', 'prodalet', $field_params );
+
 		$field_params = array(
 			'type'      => 'checkbox-group', 
 			'id'        => 'mode',
@@ -112,8 +151,15 @@ class Prodalet
 	}
 
 	// Поясняющее сообщение для секции тестирования и отладки
-	function display_setting_info(){
-		echo '<p>Для работы виджетов вам необходимо получить код установки сервиса повышения конверсии <a href="https://prodlet.ru"  target="_blank">ProdaLet.ru</a> и вставить его ниже в соответствующее поле.</p>';
+	function display_setting_info()
+    {
+        $domain = parse_url(site_url())['host'];
+		print  "
+            <p>Для работы виджетов вам необходимо получить API KEY и API SECRET на странице проекта</p> 
+            <p>Кликните на название проекта (<b>\"{$domain}\"</b>) -> раздел 'API' или 'Код установки'</p>
+            <p><b><a href='https://prodalet.ru/projects/api/".$domain."/'  target='_blank'>Перейдите в свой аккаунт ProdaLet.ru</a></b>
+            </p>
+            ";
 	}
 
 	/*
@@ -127,12 +173,17 @@ class Prodalet
 	 
 		$o = get_option( $option_name );
 	 
-		switch ( $type ) {  
-			case 'text':  
-				$o[$id] = esc_attr( stripslashes($o[$id]) );
-				echo "<input class='regular-text' type='text' id='$id' name='" . $option_name . "[$id]' value='$o[$id]' />";  
-				echo (isset($args['desc'])) ? '<br /><span class="description">'.$args['desc'].'</span>' : "";  
-			break;
+		switch ( $type ) {
+            case 'text':
+                $o[$id] = esc_attr( stripslashes($o[$id]) );
+                if(isset($o[$id]) && $o[$id] !=='') {
+                    $val = $o[$id];
+                } elseif(isset($args['default'])) {
+                    $val = $args['default'];
+                }
+                echo "<input class='regular-text' type='text' id='$id' name='" . $option_name . "[$id]' value='$val' />";
+                echo (isset($args['desc'])) ? '<br /><span class="description">'.$args['desc'].'</span>' : "";
+            break;
 			case 'textarea':  
 				$o[$id] = esc_attr( stripslashes($o[$id]) );
 				echo "<textarea class='code large-text' cols='30' rows='10' type='text' id='$id' name='" . $option_name . "[$id]'>$o[$id]</textarea>";  
@@ -196,4 +247,3 @@ class Prodalet
 		return $options;
 	}
 }
-?>
