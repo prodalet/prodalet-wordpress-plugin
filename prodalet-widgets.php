@@ -1,80 +1,86 @@
 <?php
+
 /*
-Plugin Name: ProdaLet
-Plugin URI: https://prodalet.ru/cms-ext_plugins/wordpress/prodalet.zip
-Description: Подключение сервиса повышения конверсии ProdaLet.ru
-Version: 1.2
-Author: ProdaLet
-Author URI: https://prodalet.ru
-*/
+  Plugin Name: ProdaLet Widgets
+  Description: Подключение сервиса повышения конверсии ProdaLet.ru
+  Version: 2.0.0
+  Author: ProdaLet
+  Author URI: https://prodalet.ru
+ */
+
+// Exit if accessed directly.
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 require('admin_panel.php');
 
-class Prodalet
-{
-	var $admin;
-	var $options;
-	var $options_default = array(
-		'script' => '',
-		'position' => 'header',
-		'mode' => 'all',
-		'lazy_load_desctop' => 0,
-		'lazy_load_mobile' => 0,
+class ProdaletWidgets {
+
+    var $admin;
+    var $options;
+    var $options_default = array(
+        'script' => '',
+        'position' => 'header',
+        'mode' => 'all',
+        'lazy_load_desctop' => 0,
+        'lazy_load_mobile' => 0,
         'activate_admin_panel' => null
     );
 
-	function __construct(){	
-		add_action('init',array( $this, 'initial' ) );
-	}
+    function __construct() {
+        add_action('init', array($this, 'initial'));
+    }
 
-	public function initial(){
-		$this->options = array_merge(
-			$this->options_default, 
-			(array) get_option('prodalet', array()) 
-		);
+    public function initial() {
+        $this->options = array_merge(
+                $this->options_default,
+                (array) get_option('prodalet', array())
+        );
 
-		if (defined('ABSPATH') && is_admin()) $this->admin = new ProdaletAdmin();
+        if (defined('ABSPATH') && is_admin())
+            $this->admin = new ProdaletAdmin();
 
-		// Проверяем режим работы плагина
-		if (is_user_logged_in() && current_user_can('administrator') && ($this->options['mode'] == 'admin_not_display'))
-			return;
+        // Проверяем режим работы плагина
+        if (is_user_logged_in() && current_user_can('administrator') && ($this->options['mode'] == 'admin_not_display'))
+            return;
 
-		// Выводим счетчик в панели администратора
+        // Выводим счетчик в панели администратора
         if (defined('ABSPATH') &&
-            is_admin() &&
-            !empty($this->options['activate_admin_panel']) &&
-            $this->options['activate_admin_panel'] == 'on'){
+                is_admin() &&
+                !empty($this->options['activate_admin_panel']) &&
+                $this->options['activate_admin_panel'] == 'on') {
             add_action('admin_footer', array(&$this, 'action_admin_footer'));
         }
 
-		// Определяем расположение кода счетчика
-		if ($this->options['position'] == 'header') add_action('wp_head', array($this, 'wp_head'), 4);
-		else add_action('wp_footer', array($this, 'action_wp_footer'), 99);
-	}
+        // Определяем расположение кода счетчика
+        if ($this->options['position'] == 'header')
+            add_action('wp_head', array($this, 'wp_head'), 4);
+        else
+            add_action('wp_footer', array($this, 'action_wp_footer'), 99);
+    }
 
-	public static function basename() {
+    public static function basename() {
         return plugin_basename(__FILE__);
     }
 
     // Подготавливаем код для вывода в шапке
     function wp_head() {
         $this->renderCode();
-	}
+    }
 
     // Подготавливаем код для вывода в подвале
     public function action_wp_footer() {
         $this->renderCode();
-	}
+    }
 
-	// Подготавливаем код для вывода в панели администратора
-    public function action_admin_footer(){
+    // Подготавливаем код для вывода в панели администратора
+    public function action_admin_footer() {
         $this->renderCode();
     }
 
-    public function renderCode()
-    {
-        if(preg_match('~\.int$~', $_SERVER['HTTP_HOST']))
-        {
+    public function renderCode() {
+        if (preg_match('~\.int$~', $_SERVER['HTTP_HOST'])) {
             $dbg = true;
             $host = 'http://prodalet.int';
         } else {
@@ -93,8 +99,6 @@ class Prodalet
                 'client_id' => $user->data->ID,
                 'guest_id' => ""
             );
-
-
         } else {
             //Если пользователь неизвестен
             $js_client_info = array(
@@ -114,7 +118,7 @@ class Prodalet
         $ret = "
 <!--Start Prodalet code WordPress plugin vers 1.2 {literal}-->
 <script>
-    lazy=0;lM=". $this->options['lazy_load_mobile']*1000 ."; lD=". $this->options['lazy_load_desctop']*1000 ."; if( window.matchMedia(\"only screen and (max-width: 760px)\").matches ) {lazy = lM;} else {lazy = lD;}
+    lazy=0;lM=" . $this->options['lazy_load_mobile'] * 1000 . "; lD=" . $this->options['lazy_load_desctop'] * 1000 . "; if( window.matchMedia(\"only screen and (max-width: 760px)\").matches ) {lazy = lM;} else {lazy = lD;}
     setTimeout(function (){ 
         var PLTQ = []; {$js_client_info_query} var d = new Date().getTime();
         
@@ -141,11 +145,7 @@ class Prodalet
 <!--End Prodalet code {/literal}-->";
 
         print $ret;
-
     }
-
-
-
 }
 
-$prodalet = new Prodalet();
+$prodalet = new ProdaletWidgets();
