@@ -116,7 +116,7 @@ class ProdaletWidgets {
 
         //Формируем код для встраивания в страницу
         $ret = "
-<!--Start Prodalet code WordPress plugin vers 1.2 {literal}-->
+<!--Start Prodalet code WordPress plugin vers 2.0 {literal}-->
 <script>
     lazy=0;lM=" . $this->options['lazy_load_mobile'] * 1000 . "; lD=" . $this->options['lazy_load_desctop'] * 1000 . "; if( window.matchMedia(\"only screen and (max-width: 760px)\").matches ) {lazy = lM;} else {lazy = lD;}
     setTimeout(function (){ 
