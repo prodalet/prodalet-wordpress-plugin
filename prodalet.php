@@ -1,7 +1,7 @@
 <?php
 
 /*
-  Plugin Name: ProdaLet Widgets
+  Plugin Name: ProdaLet
   Description: Подключение сервиса повышения конверсии ProdaLet.ru
   Version: 2.0.0
   Author: ProdaLet
@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
 
 require('admin_panel.php');
 
-class ProdaletWidgets {
+class Prodalet {
 
     var $admin;
     var $options;
@@ -148,4 +148,4 @@ class ProdaletWidgets {
     }
 }
 
-$prodalet = new ProdaletWidgets();
+$prodalet = new Prodalet();

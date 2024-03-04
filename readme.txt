@@ -1,4 +1,4 @@
-=== Всплывающие окна, обратный звонок, онлайн чат, виджеты сбора лидов, виджет обратной связи - ProdaLet Widgets WordPress Plugin ===
+=== Всплывающие окна, обратный звонок, онлайн чат, виджеты сбора лидов, виджет обратной связи - ProdaLet WordPress Plugin ===
 Contributors: prodalet
 Tags: prodalet, callback, widget,  survey, chat, live chat, popup, pop up, pop-up, exit popup, form builder, contact form, custom form, lead generation, newsletter popup, floating bar, email marketing
 Requires at least: 3.0.1
@@ -94,4 +94,4 @@ Initial release
 Настройка возможности отложенной загрузки
 
 = 2.0.0 =
-Плагин переименован в prodalet-widgets, простестирован на совместимость с WordPress 6.2
+Плагин переименован в prodalet, простестирован на совместимость с WordPress 6.3

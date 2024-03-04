@@ -40,7 +40,7 @@ class ProdaletAdmin {
 
     // Добавление ссылок к описанию плагина
     public static function plugin_row_meta($meta, $file) {
-        if ($file == ProdaletWidgets::basename()) {
+        if ($file == Prodalet::basename()) {
             // Ссылка на страницу настроек
             $meta[] = '<a href="options-general.php?page=prodalet/setting.php">Настройки и код установки</a>';
         }
