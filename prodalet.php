@@ -3,7 +3,7 @@
 /*
   Plugin Name: ProdaLet
   Description: Подключение сервиса повышения конверсии ProdaLet.ru
-  Version: 2.0.0
+  Version: 3.0.0
   Author: ProdaLet
   Author URI: https://prodalet.ru
  */
@@ -116,7 +116,7 @@ class Prodalet {
 
         //Формируем код для встраивания в страницу
         $ret = "
-<!--Start Prodalet code WordPress plugin vers 2.0 {literal}-->
+<!--Start Prodalet code WordPress plugin vers 3.0 {literal}-->
 <script>
     lazy=0;lM=" . $this->options['lazy_load_mobile'] * 1000 . "; lD=" . $this->options['lazy_load_desctop'] * 1000 . "; if( window.matchMedia(\"only screen and (max-width: 760px)\").matches ) {lazy = lM;} else {lazy = lD;}
     setTimeout(function (){ 
